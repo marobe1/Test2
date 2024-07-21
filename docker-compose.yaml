@@ -1,0 +1,66 @@
+services:
+  rackshot:
+    image: ghcr.io/pixel-park/dockergateway-rackshot:latest
+    ports:
+      - "5173:80"
+    networks:
+      my_network:
+        aliases:
+          - rackshot
+
+  rackshot-server:
+    image: ghcr.io/pixel-park/dockergateway-rackshot-server:latest
+    ports:
+      - "4000:4000"
+    networks:
+      my_network:
+        aliases:
+          - rackshot-server
+
+  camera-handler:
+    image: ghcr.io/pixel-park/dockergateway-camera-handler:latest
+    ports:
+      - "4600:4600"
+    networks:
+      my_network:
+        aliases:
+          - camera-handler
+
+  bolo:
+    image: ghcr.io/pixel-park/dockergateway-bolo:latest
+    ports:
+      - "5174:80"
+    networks:
+      my_network:
+        aliases:
+          - bolo
+
+  bolo-server:
+    image: ghcr.io/pixel-park/dockergateway-bolo-server:latest
+    ports:
+      - "4200:4200"
+    networks:
+      my_network:
+        aliases:
+          - bolo-server
+
+  gateway:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8000:80"
+    depends_on:
+      - rackshot
+      - rackshot-server
+      - camera-handler
+      - bolo
+      - bolo-server
+    networks:
+      my_network:
+        aliases:
+          - gateway
+
+networks:
+  my_network:
+    driver: bridge
